@@ -178,7 +178,7 @@ class MSShortcut():
             
             # read the LinkFlags structure (4 bytes)
             self._lnkFlags = struct.unpack('I', content[0x14:0x18])[0]
-            logger.debug("lnkFlags=0x%0.8x" % self._lnkFlags)
+            #logger.debug("lnkFlags=0x%0.8x" % self._lnkFlags)
             position = 0x4C
     
             # if HasLinkTargetIDList bit, then position to skip the stored IDList structure and header
@@ -200,7 +200,7 @@ class MSShortcut():
                     
                 #logger.debug("0x%0.8X" % linkInfoSize)
                 #logger.debug("0x%0.8X" % linkInfoHdrSize)
-                logger.debug("0x%0.8X" % self._linkInfoFlags)
+                #logger.debug("0x%0.8X" % self._linkInfoFlags)
                 #logger.debug("0x%0.8X" % volIdOffset)
                 #logger.debug("0x%0.8X" % localBasePathOffset)
                 #logger.debug("0x%0.8X" % cmnNetRelativeLinkOffset)
@@ -214,23 +214,23 @@ class MSShortcut():
                     
                     # not debugged - don't know if this works or not
                     self._localBasePath = UnpackZ('z', content[bpPosition:])[0].decode('ascii')
-                    logger.debug("localBasePath: {}".format(self._localBasePath))
+                    #logger.debug("localBasePath: {}".format(self._localBasePath))
                     
                     if localBasePathOffsetUnicode:
                         bpPosition = position + localBasePathOffsetUnicode
                         self._localBasePath = UnpackUnicodeZ('z', content[bpPosition:])[0]
                         self._localBasePath = self._localBasePath.decode('utf-16')               
-                        logger.debug("localBasePathUnicode: {}".format(self._localBasePath))
+                        #logger.debug("localBasePathUnicode: {}".format(self._localBasePath))
                         
                 # get common Path Suffix
                 cmnSuffixPosition = position + cmnPathSuffixOffset               
                 self._commonPathSuffix = UnpackZ('z', content[cmnSuffixPosition:])[0].decode('ascii')
-                logger.debug("commonPathSuffix: {}".format(self._commonPathSuffix))
+                #logger.debug("commonPathSuffix: {}".format(self._commonPathSuffix))
                 if cmnPathSuffixOffsetUnicode:
                     cmnSuffixPosition = position + cmnPathSuffixOffsetUnicode
                     self._commonPathSuffix = UnpackUnicodeZ('z', content[cmnSuffixPosition:])[0]
                     self._commonPathSuffix = self._commonPathSuffix.decode('utf-16')               
-                    logger.debug("commonPathSuffix: {}".format(self._commonPathSuffix))
+                    #logger.debug("commonPathSuffix: {}".format(self._commonPathSuffix))
                 
                 
                 # check for CommonNetworkRelativeLink
@@ -243,27 +243,27 @@ class MSShortcut():
             # If HasName
             if (self._lnkFlags & 0x04):
                 (position, self._name) = self.readStringObj(content, position)
-                logger.debug("name: {}".format(self._name))     
+                #logger.debug("name: {}".format(self._name))     
                 
             # get relative path string
             if (self._lnkFlags & 0x08):
                 (position, self._relativePath) = self.readStringObj(content, position)
-                logger.debug("relPath='{}'".format(self._relativePath))
+                #logger.debug("relPath='{}'".format(self._relativePath))
                  
             # get working dir string
             if (self._lnkFlags & 0x10):
                 (position, self._workingDir) = self.readStringObj(content, position)
-                logger.debug("workingDir='{}'".format(self._workingDir))
+                #logger.debug("workingDir='{}'".format(self._workingDir))
                  
             # get command line arguments
             if (self._lnkFlags & 0x20):
                 (position, self._commandLineArgs) = self.readStringObj(content, position)
-                logger.debug("commandLineArgs='{}'".format(self._commandLineArgs))
+                #logger.debug("commandLineArgs='{}'".format(self._commandLineArgs))
                 
             # get icon location
             if (self._lnkFlags & 0x40):
                 (position, self._iconLocation) = self.readStringObj(content, position)
-                logger.debug("iconLocation='{}'".format(self._iconLocation))
+                #logger.debug("iconLocation='{}'".format(self._iconLocation))
                 
             # look for environment properties             
             if (self._lnkFlags & 0x200):
@@ -284,7 +284,7 @@ class MSShortcut():
                         else:
                             self._envTarget = UnpackZ('z', content[position+8:])[0].decode('ascii')
                             
-                        logger.debug("envTarget='{}'".format(self._envTarget))
+                        #logger.debug("envTarget='{}'".format(self._envTarget))
                         
                     position += size
     
@@ -325,7 +325,7 @@ class CommonNetworkRelativeLink():
         #logger.debug("netnameOffset = {}".format(netNameOffset))
         if netNameOffset > 0x014:
             (netNameOffsetUnicode, devNameOffsetUnicode) = struct.unpack('II', scContent[linkContentPos+20:linkContentPos+28])
-            logger.debug("netnameOffsetUnicode = {}".format(netNameOffsetUnicode))
+            #logger.debug("netnameOffsetUnicode = {}".format(netNameOffsetUnicode))
             self._netName = UnpackUnicodeZ('z', scContent[linkContentPos+netNameOffsetUnicode:])[0]
             self._netName = self._netName.decode('utf-16')  
             self._deviceName = UnpackUnicodeZ('z', scContent[linkContentPos+devNameOffsetUnicode:])[0]
@@ -388,4 +388,3 @@ def UnpackUnicodeZ (fmt, buf) :
        # logger.debug("fmt='{}', len={}".format(fmt, z_len))
     fmtlen = struct.calcsize(fmt)
     return struct.unpack (fmt, buf[0:fmtlen])
-    
